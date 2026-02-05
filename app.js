@@ -377,10 +377,56 @@ function initTabEvents() {
     });
 }
 
+// 全屏功能 - 仅对��表容器全屏
+function toggleFullscreen() {
+    const chartElement = document.getElementById('kline-chart');
+    if (!document.fullscreenElement) {
+        chartElement.requestFullscreen().catch(err => {
+            console.error('进入全屏失败:', err);
+        });
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+// 更新全屏按钮图标
+function updateFullscreenIcon() {
+    const icon = document.getElementById('fullscreen-icon');
+    const btn = document.getElementById('fullscreen-btn');
+
+    if (document.fullscreenElement) {
+        // 退出全屏图标
+        icon.innerHTML = '<path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>';
+        btn.setAttribute('title', '退出全屏');
+    } else {
+        // 进入全屏图标
+        icon.innerHTML = '<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>';
+        btn.setAttribute('title', '全屏');
+    }
+}
+
+// 初始化全屏功能
+function initFullscreen() {
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+    // 监听全屏状态变化
+    document.addEventListener('fullscreenchange', function() {
+        updateFullscreenIcon();
+        // 延迟调用resize，确保全屏过渡完成后再调整图表尺寸
+        setTimeout(() => {
+            if (myChart) {
+                myChart.resize();
+            }
+        }, 100);
+    });
+}
+
 // 初始化应用
 function init() {
     initChart();
     initTabEvents();
+    initFullscreen();
 
     // 初始化黄金数据
     switchMetal('gold');
