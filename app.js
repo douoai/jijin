@@ -130,44 +130,17 @@ function initChart() {
             type: 'line', // 折线图
             data: [],
             smooth: true, // 平滑曲线
-            smoothMonotone: 'x', // 保证平滑曲线的正确性
-            symbol: 'circle', // 数据点形状
-            symbolSize: 6,
-            showSymbol: false, // 默认不显示数据点
-            // 线条渐变效果 - 模拟流动
+            symbol: 'none', // 不显示数据点
+            showSymbol: false,
+            // 简洁的线条样式 - 基金风格
             lineStyle: {
-                width: 3,
-                // 线性渐变色，模拟金色流动
-                color: {
-                    type: 'linear',
-                    x: 0,
-                    y: 0,
-                    x2: 1,
-                    y2: 0,
-                    colorStops: [
-                        { offset: 0, color: '#FFD700' },    // 金色
-                        { offset: 0.3, color: '#FFEC8B' },  // 浅金色
-                        { offset: 0.5, color: '#FFD700' },  // 金色
-                        { offset: 0.7, color: '#FFEC8B' },  // 浅金色
-                        { offset: 1, color: '#FFD700' }     // 金色
-                    ]
-                },
-                // 多层阴影效果，增加发光感
-                shadowColor: '#FFD700',
-                shadowBlur: 20,
-                shadowOffsetX: 0,
-                shadowOffsetY: 0,
-                opacity: 0.9
+                color: '#FFD700', // 金色
+                width: 2.5, // 适中的线条宽度
+                shadowColor: 'rgba(255, 215, 0, 0.3)', // 柔和阴影
+                shadowBlur: 8,
+                shadowOffsetY: 3
             },
-            // 数据点样式
-            itemStyle: {
-                color: '#FFD700',
-                borderColor: '#FFF',
-                borderWidth: 2,
-                shadowColor: '#FFD700',
-                shadowBlur: 15
-            },
-            // 区域渐变填充
+            // 区域填充 - 简洁渐变
             areaStyle: {
                 color: {
                     type: 'linear',
@@ -176,49 +149,24 @@ function initChart() {
                     x2: 0,
                     y2: 1,
                     colorStops: [{
-                        offset: 0, color: 'rgba(255, 215, 0, 0.4)' // 顶部强光
+                        offset: 0, color: 'rgba(255, 215, 0, 0.25)' // 顶部淡金色
                     }, {
-                        offset: 0.3, color: 'rgba(255, 215, 0, 0.2)' // 中上部
-                    }, {
-                        offset: 0.7, color: 'rgba(255, 215, 0, 0.05)' // 中下部
-                    }, {
-                        offset: 1, color: 'rgba(255, 215, 0, 0.0)' // 底部透明
+                        offset: 1, color: 'rgba(255, 215, 0, 0.02)' // 底部几乎透明
                     }]
                 }
             },
-            // 动画效果配置
-            animationDuration: 2000,
-            animationEasing: 'cubicInOut',
-            animationDelay: function (idx) {
-                return idx * 50; // 每个点延迟动画，形成流动效果
-            },
-            // 鼠标悬停显示数据点
+            // 简单的入场动画
+            animationDuration: 1000,
+            animationEasing: 'linear',
+            // 鼠标悬停效果
             emphasis: {
-                scale: true,
-                focus: 'series'
-            },
-            // 进度条动画效果
-            progressive: 200,
-            progressiveThreshold: 3000
-        },
-        // 添加流动的粒子效果
-        {
-            type: 'effectScatter', // 涟漪散点效果
-            coordinateSystem: 'cartesian2d',
-            data: [],
-            symbolSize: 8,
-            showEffectOn: 'render',
-            rippleEffect: {
-                brushType: 'stroke',
-                scale: 4,
-                period: 4
-            },
-            itemStyle: {
-                color: '#FFD700',
-                shadowBlur: 10,
-                shadowColor: '#FFD700'
-            },
-            z: 1
+                focus: 'series',
+                lineStyle: {
+                    width: 3.5,
+                    shadowColor: 'rgba(255, 215, 0, 0.5)',
+                    shadowBlur: 15
+                }
+            }
         }]
     };
 
@@ -247,12 +195,6 @@ function updateChart() {
         timestamp: item.timestamp
     }));
 
-    // 准备涟漪效果数据（只显示最近的几个点）
-    const rippleData = displayData.slice(-10).map(item => ({
-        value: item.price,
-        timestamp: item.timestamp
-    }));
-
     // 准备时间标签数组 - 根据数据密度调整显示格式
     const categoryData = displayData.map((item, index) => {
         const date = new Date(item.timestamp);
@@ -276,14 +218,9 @@ function updateChart() {
         xAxis: {
             data: categoryData // 更新X轴数据
         },
-        series: [
-            {
-                data: seriesData // 更新主线数据
-            },
-            {
-                data: rippleData // 更新涟漪效果数据（最近10个点）
-            }
-        ]
+        series: [{
+            data: seriesData // 更新折线数据
+        }]
     });
 }
 
