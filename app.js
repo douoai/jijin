@@ -7,6 +7,7 @@
 const priceDisplay = document.getElementById('price-display'); // 价格显示元素
 const priceTitle = document.querySelector('.price-title'); // 标题元素
 const rateDisplay = document.getElementById('rate-display'); // 汇率显示元素
+const conversionDetail = document.getElementById('conversion-detail'); // 换算详情显示
 const xauPriceEl = document.getElementById('xau-price'); // 国际金价显示
 const xauCloseEl = document.getElementById('xau-close'); // 前收盘价显示
 const xauOpenEl = document.getElementById('xau-open'); // 今日开盘价显示
@@ -486,6 +487,9 @@ async function updateDisplay() {
             second: '2-digit'
         });
         localTimeEl.textContent = `更新时间: ${timeStr}`;
+
+        // 18. 更新换算详情显示
+        conversionDetail.innerHTML = `${goldPriceUsd.toFixed(2)} USD/盎司 × ${usdToRmbRate.toFixed(2)} ÷ 31.1035 = <span class="result-price">¥${formatPrice(goldPriceRmbPerGram)}/克</span>`;
 
     } catch (error) {
         console.error('更新显示失败', error);

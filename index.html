@@ -97,6 +97,75 @@
             margin: 0 auto;
         }
 
+        /* 换算显示区域 */
+        .conversion-display {
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            border: 1px solid #2a2a2a;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .conversion-title {
+            font-size: 16px;
+            color: #ffd700;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .conversion-formula {
+            font-size: 15px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            background-color: #121212;
+            padding: 12px 20px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .result-price {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .conversion-display {
+                padding: 15px;
+                margin-top: 20px;
+            }
+
+            .conversion-title {
+                font-size: 14px;
+            }
+
+            .conversion-formula {
+                font-size: 13px;
+                padding: 10px 15px;
+            }
+
+            .result-price {
+                font-size: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .conversion-formula {
+                font-size: 12px;
+                padding: 8px 12px;
+                word-break: break-all;
+            }
+
+            .result-price {
+                font-size: 14px;
+            }
+        }
+
         .info-item {
             display: flex;
             flex-direction: column;
@@ -337,6 +406,14 @@
                 <div class="info-item">
                     <span class="info-label">价格变化</span>
                     <span class="info-value" id="xau-change">--</span>
+                </div>
+            </div>
+
+            <!-- 国内价格换算显示 -->
+            <div class="conversion-display">
+                <div class="conversion-title">国内金价换算</div>
+                <div class="conversion-formula">
+                    <span id="conversion-detail">-- × -- ÷ 31.1035 = <span class="result-price">¥--/克</span></span>
                 </div>
             </div>
         </div>
