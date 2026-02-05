@@ -196,6 +196,12 @@ function updateChart() {
         timestamp: item.timestamp
     }));
 
+    // 首次有数据时隐藏加载动画
+    if (isLoading && seriesData.length > 0) {
+        isLoading = false;
+        hideLoading();
+    }
+
     // 准备时间标签数组 - 根据数据密度调整显示格式
     const categoryData = displayData.map((item, index) => {
         const date = new Date(item.timestamp);
@@ -546,12 +552,6 @@ async function updateDisplay() {
         const domesticChange = usdToRmb(goldChange);
         domesticChangeEl.textContent = `${domesticChange >= 0 ? '+' : ''}${formatPrice(domesticChange)}`;
         domesticChangeEl.className = domesticChange >= 0 ? 'info-value positive' : 'info-value negative';
-
-        // 如果是首次加载，隐藏加载动画
-        if (isLoading) {
-            isLoading = false;
-            hideLoading();
-        }
 
     } catch (error) {
         console.error('更新显示失败', error);
