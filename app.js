@@ -95,7 +95,7 @@ function initChart() {
                         <div style="color: #ffd700; font-weight: bold; font-size: 16px; margin-bottom: 8px;">
                             ¥${value}/克
                         </div>
-                        <div style="color: #999; font-size: 12px;">
+                        <div style="color: #ffd700; font-size: 13px;">
                             ${timeStr}
                         </div>
                     </div>
@@ -441,38 +441,43 @@ async function updateDisplay() {
             goldPriceRmbPerGram = config.basePrice + (Math.random() - 0.5) * config.basePrice * 0.01;
         }
 
-        // 7. 更新上次价格记录
+        // 7. 检查价格是否有变化（避免重复数据）
+        const lastPrice = priceHistory.length > 0 ? priceHistory[priceHistory.length - 1].price : null;
+
+        // 8. 更新上次价格记录
         lastGoldPriceUsd = goldPriceUsd;
 
-        // 8. 添加新价格到历史记录
-        addPriceData(goldPriceRmbPerGram, now.getTime());
+        // 9. 只在价格变化时添加新数据到历史记录
+        if (lastPrice === null || Math.abs(goldPriceRmbPerGram - lastPrice) > 0.01) {
+            addPriceData(goldPriceRmbPerGram, now.getTime());
+        }
 
-        // 9. 更新页面价格显示
+        // 10. 更新页面价格显示
         priceDisplay.textContent = formatPrice(goldPriceRmbPerGram);
 
-        // 10. 更新国际金价
+        // 11. 更新国际金价
         xauPriceEl.textContent = `${goldPriceUsd.toFixed(2)} USD/盎司`;
 
-        // 11. 更新前收盘价
+        // 12. 更新前收盘价
         xauCloseEl.textContent = `${goldClose.toFixed(2)} USD`;
 
-        // 12. 更新今日开盘价
+        // 13. 更新今日开盘价
         if (todayOpenPrice) {
             xauOpenEl.textContent = `${todayOpenPrice.toFixed(2)} USD`;
         }
 
-        // 13. 更新涨跌幅（带颜色）
+        // 14. 更新涨跌幅（带颜色）
         xauPercentEl.textContent = `${goldPercent >= 0 ? '+' : ''}${goldPercent.toFixed(2)}%`;
         xauPercentEl.className = goldPercent >= 0 ? 'info-value positive' : 'info-value negative';
 
-        // 14. 更新价格变化（带颜色）
+        // 15. 更新价格变化（带颜色）
         xauChangeEl.textContent = `${goldChange >= 0 ? '+' : ''}${goldChange.toFixed(2)}`;
         xauChangeEl.className = goldChange >= 0 ? 'info-value positive' : 'info-value negative';
 
-        // 15. 更新汇率
+        // 16. 更新汇率
         rateValue.textContent = `1 USD = ${usdToRmbRate.toFixed(2)} CNY`;
 
-        // 16. 更新本地时间
+        // 17. 更新本地时间
         localTimeEl.textContent = now.toLocaleString('zh-CN', {
             month: '2-digit',
             day: '2-digit',
