@@ -73,14 +73,34 @@ function initChart() {
                     type: 'dashed'
                 }
             },
-            // 自定义提示框内容
+            // 自定义提示框内容 - 第一行价格，第二行完整时间
             formatter: function(params) {
                 const data = params[0];
                 const value = data.value.toFixed(2);
+
+                // 从priceHistory中获取原始时间戳
+                const historyData = priceHistory[priceHistory.length - CHART_DISPLAY_COUNT + data.dataIndex];
+                let timeStr = '';
+                if (historyData) {
+                    const date = new Date(historyData.timestamp);
+                    timeStr = date.toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                }
+
                 return `
-                    <div style="padding: 8px; background: rgba(0,0,0,0.9); border-radius: 4px;">
-                        <div style="color: #ffd700; font-weight: bold; margin-bottom: 5px;">${data.name}</div>
-                        <div style="color: #fff;">价格: <span style="color: #ffd700;">¥${value}</span>/克</div>
+                    <div style="padding: 10px 12px; background: rgba(0,0,0,0.95); border-radius: 6px; border: 1px solid #333;">
+                        <div style="color: #ffd700; font-weight: bold; font-size: 16px; margin-bottom: 8px;">
+                            ¥${value}/克
+                        </div>
+                        <div style="color: #999; font-size: 12px;">
+                            ${timeStr}
+                        </div>
                     </div>
                 `;
             },
