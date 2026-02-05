@@ -4,10 +4,13 @@
  */
 
 // ==================== 页面元素 ====================
-const priceDisplay = document.getElementById('price-display'); // 价��显示元素
+const priceDisplay = document.getElementById('price-display'); // 价格显示元素
 const priceTitle = document.querySelector('.price-title'); // 标题元素
 const xauPriceEl = document.getElementById('xau-price'); // 国际金价显示
+const xauCloseEl = document.getElementById('xau-close'); // 前收盘价显示
+const xauOpenEl = document.getElementById('xau-open'); // 今日开盘价显示
 const xauPercentEl = document.getElementById('xau-percent'); // 黄金涨跌幅
+const xauChangeEl = document.getElementById('xau-change'); // 价格变化显示
 const rateValue = document.getElementById('rate-value'); // 汇率显示元素
 const localTimeEl = document.getElementById('local-time'); // 本地时间
 const chartContainer = document.getElementById('kline-chart'); // 图表容器
@@ -32,6 +35,8 @@ let priceHistory = []; // 价格历史数据数组 [{price, timestamp}, ...]
 let myChart = null; // ECharts图表实例
 let currentMetal = 'gold'; // 当前选择的金属类型
 let currentTimePeriod = 'realtime'; // 当前选择的时间段
+let todayOpenPrice = null; // 今日开盘价（当天的第一个价格）
+let lastDate = null; // 上次更新的日期
 
 // ==================== 金属配置 ====================
 // 不同金属的基础价格配置（用于模拟其他金属价格）
@@ -383,43 +388,72 @@ async function updateDisplay() {
         // 2. 获取黄金价格数据
         const goldData = await getGoldPrice();
 
-        // 3. 提取关键API数据
+        // 3. 提取关��API数据
         const item = goldData.items[0];
         const goldPriceUsd = item.xauPrice; // 国际金价
+        const goldChange = item.chgXau; // 黄金价格变化
         const goldPercent = item.pcXau; // 黄金涨跌幅
+        const goldClose = item.xauClose; // 前收盘价
 
-        // 4. 计算人民币每克价格
+        // 4. 检查日期变化，确定今日开盘价
+        const now = new Date();
+        const currentDate = now.toDateString();
+
+        // 如果是新的一天或者是第一次运行，记录开盘价
+        if (lastDate !== currentDate) {
+            if (lastDate === null) {
+                // 第一次运行，使用当前价格作为开盘价
+                todayOpenPrice = goldPriceUsd;
+            } else {
+                // 日期变化了，新的一天的第一个价格作为开盘价
+                todayOpenPrice = goldPriceUsd;
+            }
+            lastDate = currentDate;
+        }
+
+        // 5. 计算人民币每克价格
         // 公式：国内金价（元/克）= 国际金价（美元/盎司）× 汇率 ÷ 31.1035
         let goldPriceRmbPerGram = (goldPriceUsd * usdToRmbRate) / 31.1035;
 
-        // 5. 如果选择的是其他金属，使用模拟价格
+        // 6. 如果选择的是其他金属，使用模拟价格
         if (currentMetal !== 'gold') {
             const config = metalConfig[currentMetal];
             goldPriceRmbPerGram = config.basePrice + (Math.random() - 0.5) * config.basePrice * 0.01;
         }
 
-        // 6. 更新上次价格记录
+        // 7. 更新上次价格记录
         lastGoldPriceUsd = goldPriceUsd;
 
-        // 7. 添加新价格到历史记录
-        const now = Date.now();
-        addPriceData(goldPriceRmbPerGram, now);
+        // 8. 添加新价格到历史记录
+        addPriceData(goldPriceRmbPerGram, now.getTime());
 
-        // 8. 更新页面价格显示
+        // 9. 更新页面价格显示
         priceDisplay.textContent = formatPrice(goldPriceRmbPerGram);
 
-        // 9. 更新国际金价
+        // 10. 更新国际金价
         xauPriceEl.textContent = `${goldPriceUsd.toFixed(2)} USD/盎司`;
 
-        // 10. 更新涨跌幅（带颜色）
+        // 11. 更新前收盘价
+        xauCloseEl.textContent = `${goldClose.toFixed(2)} USD`;
+
+        // 12. 更新今日开盘价
+        if (todayOpenPrice) {
+            xauOpenEl.textContent = `${todayOpenPrice.toFixed(2)} USD`;
+        }
+
+        // 13. 更新涨跌幅（带颜色）
         xauPercentEl.textContent = `${goldPercent >= 0 ? '+' : ''}${goldPercent.toFixed(2)}%`;
         xauPercentEl.className = goldPercent >= 0 ? 'info-value positive' : 'info-value negative';
 
-        // 11. 更新汇率
+        // 14. 更新价格变化（带颜色）
+        xauChangeEl.textContent = `${goldChange >= 0 ? '+' : ''}${goldChange.toFixed(2)}`;
+        xauChangeEl.className = goldChange >= 0 ? 'info-value positive' : 'info-value negative';
+
+        // 15. 更新汇率
         rateValue.textContent = `1 USD = ${usdToRmbRate.toFixed(2)} CNY`;
 
-        // 12. 更新本地时间
-        localTimeEl.textContent = new Date(now).toLocaleString('zh-CN', {
+        // 16. 更新本地时间
+        localTimeEl.textContent = now.toLocaleString('zh-CN', {
             month: '2-digit',
             day: '2-digit',
             hour: '2-digit',

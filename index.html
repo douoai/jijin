@@ -70,8 +70,8 @@
         .info-display {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            max-width: 900px;
+            gap: 12px;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
@@ -217,7 +217,7 @@
             }
 
             .info-value {
-                font-size: 14px;
+                font-size: 13px;
             }
 
             #kline-chart {
@@ -233,6 +233,10 @@
         @media (max-width: 480px) {
             .info-display {
                 grid-template-columns: 1fr; /* 小屏单列显示 */
+            }
+
+            .info-value {
+                font-size: 14px;
             }
         }
     </style>
@@ -265,8 +269,20 @@
                     <span class="info-value" id="xau-price">-- USD/盎司</span>
                 </div>
                 <div class="info-item">
+                    <span class="info-label">前收盘价</span>
+                    <span class="info-value" id="xau-close">-- USD</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">今日开盘</span>
+                    <span class="info-value" id="xau-open">-- USD</span>
+                </div>
+                <div class="info-item">
                     <span class="info-label">涨跌幅</span>
                     <span class="info-value" id="xau-percent">--%</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">价格变化</span>
+                    <span class="info-value" id="xau-change">--</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">汇率</span>
