@@ -7,6 +7,8 @@
 const priceDisplay = document.getElementById('price-display'); // 价格显示元素
 const priceTitle = document.querySelector('.price-title'); // 标题元素
 const rateValue = document.getElementById('rate-value'); // 汇率显示元素
+const usdPriceDisplay = document.getElementById('usd-price'); // 国际金价显示元素
+const updateTimeDisplay = document.getElementById('update-time'); // 更新时间显示元素
 const chartContainer = document.getElementById('kline-chart'); // 图表容器
 
 // ==================== 配置参数 ====================
@@ -395,8 +397,21 @@ async function updateDisplay() {
         // 8. 更新页面价格显示
         priceDisplay.textContent = formatPrice(goldPriceRmbPerGram);
 
-        // 9. 更新汇率显示
+        // 9. 更新国际金价显示
+        usdPriceDisplay.textContent = `${goldPriceUsd.toFixed(2)} USD/盎司`;
+
+        // 10. 更新汇率显示
         rateValue.textContent = `1 USD = ${usdToRmbRate.toFixed(2)} CNY`;
+
+        // 11. 更新时间显示
+        const updateTime = new Date(now);
+        updateTimeDisplay.textContent = updateTime.toLocaleString('zh-CN', {
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
 
     } catch (error) {
         console.error('更新显示失败', error);

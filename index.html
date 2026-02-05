@@ -60,18 +60,44 @@
             font-weight: 600;
         }
 
-        /* 汇率显示 */
-        .rate-display {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #999;
-            text-align: center;
+        /* 详细信息显示 */
+        .info-display {
+            margin-top: 25px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        #rate-value {
+        .info-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 15px;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            border: 1px solid #2a2a2a;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: #999;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 14px;
             color: #ffd700;
             font-weight: 600;
-            margin-left: 5px;
+        }
+
+        .info-formula {
+            font-size: 12px;
+            color: #888;
+            font-family: 'Courier New', monospace;
         }
 
         /* 时间筛选标签 - PC端显示 */
@@ -168,6 +194,23 @@
                 font-size: 24px;
             }
 
+            .info-display {
+                grid-template-columns: 1fr; /* 移动端单列显示 */
+                gap: 10px;
+            }
+
+            .info-item {
+                padding: 8px 12px;
+            }
+
+            .info-label {
+                font-size: 12px;
+            }
+
+            .info-value {
+                font-size: 13px;
+            }
+
             #kline-chart {
                 height: 400px;
             }
@@ -193,11 +236,27 @@
             <h2 class="price-title">黄金价格</h2>
             <div class="price-display-wrapper">
                 <span class="price-value" id="price-display">1087.13</span>
-                <span class="price-unit">¥</span>
+                <span class="price-unit">¥/克</span>
             </div>
-            <!-- 汇率显示 -->
-            <div class="rate-display">
-                汇率: <span id="rate-value">1 USD = 6.92 CNY</span>
+
+            <!-- 详细信息显示 -->
+            <div class="info-display">
+                <div class="info-item">
+                    <span class="info-label">国际金价:</span>
+                    <span class="info-value" id="usd-price">-- USD/盎司</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">汇率:</span>
+                    <span class="info-value" id="rate-value">1 USD = -- CNY</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">计算公式:</span>
+                    <span class="info-formula">国际金价 × 汇率 ÷ 31.1035</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">更新时间:</span>
+                    <span class="info-value" id="update-time">--</span>
+                </div>
             </div>
         </div>
 
