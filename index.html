@@ -66,6 +66,28 @@
             margin-bottom: 30px;
         }
 
+        /* 汇率和时间信息容器 */
+        .rate-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* 汇率文字显示 */
+        .rate-text {
+            font-size: 14px;
+            color: #999;
+        }
+
+        /* 时间文字显示 */
+        .time-text {
+            font-size: 14px;
+            color: #999;
+        }
+
         /* 详细信息显示 */
         .info-display {
             display: grid;
@@ -203,6 +225,11 @@
                 font-size: 24px;
             }
 
+            .rate-info {
+                gap: 15px;
+                flex-direction: column;
+            }
+
             .info-display {
                 grid-template-columns: repeat(2, 1fr); /* 移动端2列显示 */
                 gap: 10px;
@@ -282,6 +309,11 @@
                     <span class="price-value" id="price-display">--</span>
                     <span class="price-unit">¥/克</span>
                 </div>
+                <!-- 汇率和时间显示 -->
+                <div class="rate-info">
+                    <span class="rate-text" id="rate-display">汇率: 1 USD = -- CNY</span>
+                    <span class="time-text" id="local-time">更新时间: --</span>
+                </div>
             </div>
 
             <!-- 关键数据展示 -->
@@ -305,14 +337,6 @@
                 <div class="info-item">
                     <span class="info-label">价格变化</span>
                     <span class="info-value" id="xau-change">--</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">汇率</span>
-                    <span class="info-value" id="rate-value">1 USD = -- CNY</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">更新时间</span>
-                    <span class="info-value" id="local-time">--</span>
                 </div>
             </div>
         </div>

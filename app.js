@@ -6,12 +6,12 @@
 // ==================== 页面元素 ====================
 const priceDisplay = document.getElementById('price-display'); // 价格显示元素
 const priceTitle = document.querySelector('.price-title'); // 标题元素
+const rateDisplay = document.getElementById('rate-display'); // 汇率显示元素
 const xauPriceEl = document.getElementById('xau-price'); // 国际金价显示
 const xauCloseEl = document.getElementById('xau-close'); // 前收盘价显示
 const xauOpenEl = document.getElementById('xau-open'); // 今日开盘价显示
 const xauPercentEl = document.getElementById('xau-percent'); // 黄金涨跌幅
 const xauChangeEl = document.getElementById('xau-change'); // 价格变化显示
-const rateValue = document.getElementById('rate-value'); // 汇率显示元素
 const localTimeEl = document.getElementById('local-time'); // 本地时间
 const chartContainer = document.getElementById('kline-chart'); // 图表容器
 
@@ -474,17 +474,18 @@ async function updateDisplay() {
         xauChangeEl.textContent = `${goldChange >= 0 ? '+' : ''}${goldChange.toFixed(2)}`;
         xauChangeEl.className = goldChange >= 0 ? 'info-value positive' : 'info-value negative';
 
-        // 16. 更新汇率
-        rateValue.textContent = `1 USD = ${usdToRmbRate.toFixed(2)} CNY`;
+        // 16. 更新汇率（在价格下方显示）
+        rateDisplay.textContent = `汇率: 1 USD = ${usdToRmbRate.toFixed(2)} CNY`;
 
-        // 17. 更新本地时间
-        localTimeEl.textContent = now.toLocaleString('zh-CN', {
+        // 17. 更新本地时间（在汇率后面显示）
+        const timeStr = now.toLocaleString('zh-CN', {
             month: '2-digit',
             day: '2-digit',
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit'
         });
+        localTimeEl.textContent = `更新时间: ${timeStr}`;
 
     } catch (error) {
         console.error('更新显示失败', error);
