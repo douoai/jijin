@@ -4,8 +4,9 @@
  */
 
 // ==================== 页面元素 ====================
-const priceDisplay = document.getElementById('price-display'); // 价格显��元素
+const priceDisplay = document.getElementById('price-display'); // 价格显示元素
 const priceTitle = document.querySelector('.price-title'); // 标题元素
+const rateValue = document.getElementById('rate-value'); // 汇率显示元素
 const chartContainer = document.getElementById('kline-chart'); // 图表容器
 
 // ==================== 配置参数 ====================
@@ -390,6 +391,9 @@ async function updateDisplay() {
 
         // 8. 更新页面价格显示
         priceDisplay.textContent = formatPrice(goldPriceRmbPerGram);
+
+        // 9. 更新汇率显示
+        rateValue.textContent = `1 USD = ${usdToRmbRate.toFixed(2)} CNY`;
 
     } catch (error) {
         console.error('更新显示失败', error);

@@ -60,6 +60,20 @@
             font-weight: 600;
         }
 
+        /* 汇率显示 */
+        .rate-display {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #999;
+            text-align: center;
+        }
+
+        #rate-value {
+            color: #ffd700;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
         /* 时间筛选标签 - PC端显示 */
         .time-tabs {
             display: flex;
@@ -180,6 +194,10 @@
             <div class="price-display-wrapper">
                 <span class="price-value" id="price-display">1087.13</span>
                 <span class="price-unit">¥</span>
+            </div>
+            <!-- 汇率显示 -->
+            <div class="rate-display">
+                汇率: <span id="rate-value">1 USD = 6.92 CNY</span>
             </div>
         </div>
 
