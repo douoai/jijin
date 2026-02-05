@@ -11,7 +11,8 @@ const chartContainer = document.getElementById('kline-chart'); // 图表容器
 
 // ==================== 配置参数 ====================
 const REFRESH_INTERVAL = 5000; // 价格刷新间隔：5秒
-const MAX_DATA_COUNT = 200; // 图表最多显示的数据点数量
+const MAX_DATA_COUNT = 50; // 图表最多显示的数据点数量（改为50个，约4分钟数据）
+const CHART_DISPLAY_COUNT = 60; // 图表实际显示的数据点数量
 
 // ==================== API接口地址 ====================
 const GOLD_API_URL = 'https://data-asg.goldprice.org/dbXRates/USD'; // 国际金价API
@@ -142,19 +143,21 @@ function initChart() {
 /**
  * 更新图表数据
  * 从priceHistory中提取数据并更新图表
+ * 只显示最近CHART_DISPLAY_COUNT个数据点，保持图表清晰
  */
 function updateChart() {
     if (!myChart) return;
 
-    // 准备价格数据数组
-    const priceData = priceHistory.map(item => item.price);
+    // 只获取最近的数据点
+    const displayData = priceHistory.slice(-CHART_DISPLAY_COUNT);
 
-    // 准备时间标签数组（格式化为 MM/DD HH:mm:ss）
-    const categoryData = priceHistory.map(item => {
+    // 准备价格数据数组
+    const priceData = displayData.map(item => item.price);
+
+    // 准备时间标签数组（格式化为 HH:mm:ss）
+    const categoryData = displayData.map(item => {
         const date = new Date(item.timestamp);
         return date.toLocaleString('zh-CN', {
-            month: '2-digit',
-            day: '2-digit',
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit'
