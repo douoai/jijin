@@ -24,10 +24,11 @@
             padding: 0 0;
         }
 
-        /* 价格区域 */
+        /* 价格区域 - 默认隐藏，实现全屏图表效果 */
         .price-section {
             padding: 35px 20px 30px;
             text-align: center;
+            display: none; /* 隐藏价格区域 */
         }
 
         .price-title {
@@ -79,14 +80,9 @@
             transform: scale(0.95);
         }
 
-        /* 时间筛选标签 */
+        /* 时间筛选标签 - 默认隐藏 */
         .time-tabs {
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 10px;
-            background-color: #1a1a1a;
-            border-top: 1px solid #2a2a2a;
-            border-bottom: 1px solid #2a2a2a;
+            display: none; /* 隐藏时间筛选标签 */
         }
 
         .time-tab {
@@ -106,18 +102,20 @@
             color: #000;
         }
 
-        /* 图表区域 */
+        /* 图表区域 - 占据全屏 */
         .chart-container {
-            padding: 20px 15px;
+            padding: 0;
             background-color: #121212;
+            height: 100vh; /* 占满整个视口高度 */
+            width: 100vw; /* 占满整个视口宽度 */
         }
 
         #kline-chart {
             width: 100%;
-            height: 400px;
+            height: 100%; /* 占满容器高度 */
         }
 
-        /* 全屏按钮 */
+        /* 全屏按钮 - 隐藏（因为默认已是全屏效果） */
         .fullscreen-btn {
             position: fixed;
             top: 20px;
@@ -128,7 +126,7 @@
             background-color: rgba(42, 42, 42, 0.9);
             border: 1px solid #3a3a3a;
             cursor: pointer;
-            display: flex;
+            display: none; /* 隐藏全屏按钮 */
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
