@@ -398,7 +398,7 @@ async function updateDisplay() {
 
 /**
  * 初始化标签切换事件
- * 包括时间段标签切换和订阅按钮功能
+ * 包括时间段标签切换功能
  */
 function initTabEvents() {
     // 时间段标签切换事件
@@ -413,23 +413,6 @@ function initTabEvents() {
             const period = this.getAttribute('data-period');
             switchTimePeriod(period);
         });
-    });
-
-    // 订阅按钮点击事件
-    const subscribeBtn = document.querySelector('.subscribe-btn');
-    subscribeBtn.addEventListener('click', function() {
-        const isSubscribed = this.classList.contains('subscribed');
-        if (isSubscribed) {
-            // 取消订阅
-            this.classList.remove('subscribed');
-            this.querySelector('span:last-child').textContent = '订阅';
-            this.style.backgroundColor = '#ffd700';
-        } else {
-            // 确认订阅
-            this.classList.add('subscribed');
-            this.querySelector('span:last-child').textContent = '已订阅';
-            this.style.backgroundColor = '#4caf50';
-        }
     });
 }
 
