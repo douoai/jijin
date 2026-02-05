@@ -6,9 +6,18 @@
 // ==================== 页面元素 ====================
 const priceDisplay = document.getElementById('price-display'); // 价格显示元素
 const priceTitle = document.querySelector('.price-title'); // 标题元素
+const xauPriceEl = document.getElementById('xau-price'); // 国际金价显示
+const xauChangeEl = document.getElementById('xau-change'); // 黄金价格变化
+const xauPercentEl = document.getElementById('xau-percent'); // 黄金涨跌幅
+const xauCloseEl = document.getElementById('xau-close'); // 黄金前收盘
+const xagPriceEl = document.getElementById('xag-price'); // 白银价格显示
+const xagChangeEl = document.getElementById('xag-change'); // 白银价格变化
+const xagPercentEl = document.getElementById('xag-percent'); // 白银涨跌幅
+const xagCloseEl = document.getElementById('xag-close'); // 白银前收盘
 const rateValue = document.getElementById('rate-value'); // 汇率显示元素
-const usdPriceDisplay = document.getElementById('usd-price'); // 国际金价显示元素
-const updateTimeDisplay = document.getElementById('update-time'); // 更新时间显示元素
+const apiDateEl = document.getElementById('api-date'); // API时间
+const apiTsEl = document.getElementById('api-ts'); // 时间戳
+const localTimeEl = document.getElementById('local-time'); // 本地时间
 const chartContainer = document.getElementById('kline-chart'); // 图表容器
 
 // ==================== 配置参数 ====================
@@ -370,15 +379,24 @@ async function updateDisplay() {
         // 1. 获取美元兑人民币汇率
         const usdToRmbRate = await getUsdToRmbRate();
 
-        // 2. 获取黄金价格数据
+        // 2. 获取黄金价格数据（包含所有API返回数据）
         const goldData = await getGoldPrice();
 
-        // 3. 提取国际金价（美元/盎司）
-        const goldPriceUsd = goldData.items[0].xauPrice;
+        // 3. 提取所有API数据
+        const item = goldData.items[0];
+        const goldPriceUsd = item.xauPrice; // 国际金价
+        const silverPriceUsd = item.xagPrice; // 白银价格
+        const goldChange = item.chgXau; // 黄金价格变化
+        const silverChange = item.chgXag; // 白银价格变化
+        const goldPercent = item.pcXau; // 黄金涨跌幅
+        const silverPercent = item.pcXag; // 白银涨跌幅
+        const goldClose = item.xauClose; // 黄金前收盘
+        const silverClose = item.xagClose; // 白银前收盘
+        const apiDate = goldData.date; // API时间
+        const apiTs = goldData.ts; // API时间戳
 
         // 4. 计算人民币每克价格
         // 公式：国内金价（元/克）= 国际金价（美元/盎司）× 汇率 ÷ 31.1035
-        // 其中：31.1035 是1金衡盎司的克数
         let goldPriceRmbPerGram = (goldPriceUsd * usdToRmbRate) / 31.1035;
 
         // 5. 如果选择的是其他金属，使用模拟价格
@@ -397,15 +415,29 @@ async function updateDisplay() {
         // 8. 更新页面价格显示
         priceDisplay.textContent = formatPrice(goldPriceRmbPerGram);
 
-        // 9. 更新国际金价显示
-        usdPriceDisplay.textContent = `${goldPriceUsd.toFixed(2)} USD/盎司`;
+        // 9. 更新黄金数据
+        xauPriceEl.textContent = `${goldPriceUsd.toFixed(2)} USD/盎司`;
+        xauChangeEl.textContent = `${goldChange >= 0 ? '+' : ''}${goldChange.toFixed(2)}`;
+        xauChangeEl.className = goldChange >= 0 ? 'info-value positive' : 'info-value negative';
+        xauPercentEl.textContent = `${goldPercent >= 0 ? '+' : ''}${goldPercent.toFixed(2)}%`;
+        xauPercentEl.className = goldPercent >= 0 ? 'info-value positive' : 'info-value negative';
+        xauCloseEl.textContent = `${goldClose.toFixed(2)} USD`;
 
-        // 10. 更新汇率显示
+        // 10. 更新白银数据
+        xagPriceEl.textContent = `${silverPriceUsd.toFixed(2)} USD/盎司`;
+        xagChangeEl.textContent = `${silverChange >= 0 ? '+' : ''}${silverChange.toFixed(2)}`;
+        xagChangeEl.className = silverChange >= 0 ? 'info-value positive' : 'info-value negative';
+        xagPercentEl.textContent = `${silverPercent >= 0 ? '+' : ''}${silverPercent.toFixed(2)}%`;
+        xagPercentEl.className = silverPercent >= 0 ? 'info-value positive' : 'info-value negative';
+        xagCloseEl.textContent = `${silverClose.toFixed(2)} USD`;
+
+        // 11. 更新汇率显示
         rateValue.textContent = `1 USD = ${usdToRmbRate.toFixed(2)} CNY`;
 
-        // 11. 更新时间显示
-        const updateTime = new Date(now);
-        updateTimeDisplay.textContent = updateTime.toLocaleString('zh-CN', {
+        // 12. 更新API元数据
+        apiDateEl.textContent = apiDate;
+        apiTsEl.textContent = apiTs;
+        localTimeEl.textContent = new Date(now).toLocaleString('zh-CN', {
             month: '2-digit',
             day: '2-digit',
             hour: '2-digit',
