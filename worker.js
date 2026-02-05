@@ -153,6 +153,15 @@ async function getPrices(request, env) {
 
         const result = await stmt.bind(startTime, limit).all();
 
+        // 安全检查：确保 result 存在且有 results 属性
+        if (!result || !result.results) {
+            return jsonResponse({
+                success: true,
+                data: [],
+                count: 0
+            });
+        }
+
         return jsonResponse({
             success: true,
             data: result.results,
@@ -187,8 +196,13 @@ async function getLatestPrice(env) {
 
         const result = await stmt.first();
 
+        // 如果数据库中没有数据，返回空数组而不是错误
         if (!result) {
-            return jsonResponse({ error: 'No data found' }, 404);
+            return jsonResponse({
+                success: true,
+                data: null,
+                message: 'No data found'
+            });
         }
 
         return jsonResponse({

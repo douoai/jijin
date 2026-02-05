@@ -48,7 +48,10 @@ let lastDate = null; // 上次更新的日期
 // ==================== API 配置 ====================
 let API_BASE_URL = window.API_BASE_URL || 'http://localhost:8787';
 
-// ==================== 金属配置 ====================
+// 是否启用数据库保存（如果 API 还未部署，设为 false 使用 localStorage）
+const ENABLE_DATABASE = false; // 暂时禁用，部署完成后改为 true
+
+// ==================== 金属��置 ====================
 // 不同金属的基础价格配置（用于模拟其他金属价格）
 const metalConfig = {
     gold: { name: '黄金', basePrice: 1087.13 },
@@ -58,21 +61,27 @@ const metalConfig = {
 };
 
 /**
- * 从 D1 数据库加载价格历史数据
+ * 从 D1 数据库或 localStorage 加载价格历史数据
  * @returns {Promise<Array>} 历史数据数组
  */
 async function loadFromDatabase() {
+    // 如果未启用数据库，使用 localStorage
+    if (!ENABLE_DATABASE) {
+        return loadFromLocalStorage();
+    }
+
     try {
         const response = await fetch(`${API_BASE_URL}/api/prices?hours=${MAX_HISTORY_HOURS}&limit=${MAX_DATA_COUNT}`);
 
         if (!response.ok) {
             console.error('API 返回错误:', response.status);
-            return null;
+            return loadFromLocalStorage(); // 失败时回退到 localStorage
         }
 
         const result = await response.json();
+        console.log('API 响应:', result); // 调试日志
 
-        if (result.success && result.data) {
+        if (result.success && result.data && Array.isArray(result.data)) {
             // 转换数据格式以兼容现有的图表代码
             const history = result.data.map(item => ({
                 price: item.priceCny,
@@ -83,17 +92,55 @@ async function loadFromDatabase() {
             return history;
         }
 
-        return null;
+        console.log('API 返回的数据格式不正确或为空');
+        return loadFromLocalStorage(); // 回退到 localStorage
     } catch (error) {
-        console.error('从数据库加载数据失败', error);
+        console.error('从数据库加载数据失败，使用 localStorage', error);
+        return loadFromLocalStorage(); // 失败时回退到 localStorage
+    }
+}
+
+/**
+ * 从 localStorage 加载数据
+ */
+function loadFromLocalStorage() {
+    try {
+        const CACHE_KEY = 'goldPriceHistory';
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (!cached) return null;
+
+        const data = JSON.parse(cached);
+        const now = Date.now();
+
+        // 检查缓存是否过期（2小时）
+        if (now - data.timestamp > 2 * 60 * 60 * 1000) {
+            console.log('缓存已过期');
+            localStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+
+        // 过滤掉过期的历史数据点（只保留2小时内的）
+        const validHistory = data.history.filter(item => {
+            return now - item.timestamp <= MAX_HISTORY_HOURS * 3600 * 1000;
+        });
+
+        console.log(`从 localStorage 加载了 ${validHistory.length} 条数据`);
+        return validHistory;
+    } catch (error) {
+        console.error('读取 localStorage 失败', error);
         return null;
     }
 }
 
 /**
- * 保存价格数据到 D1 数据库
+ * 保存价格数据到 D1 数据库或 localStorage
  */
 async function saveToDatabase(priceData) {
+    if (!ENABLE_DATABASE) {
+        saveToLocalStorage(priceData);
+        return;
+    }
+
     try {
         await fetch(`${API_BASE_URL}/api/price`, {
             method: 'POST',
@@ -103,7 +150,24 @@ async function saveToDatabase(priceData) {
             body: JSON.stringify(priceData)
         });
     } catch (error) {
-        console.error('保存到数据库失败', error);
+        console.error('保存到数据库失败，使用 localStorage', error);
+        saveToLocalStorage(priceData); // 失败时保存到 localStorage
+    }
+}
+
+/**
+ * 保存数据到 localStorage
+ */
+function saveToLocalStorage(priceData) {
+    try {
+        const CACHE_KEY = 'goldPriceHistory';
+        const data = {
+            timestamp: Date.now(),
+            history: priceHistory
+        };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    } catch (error) {
+        console.error('保存到 localStorage 失败', error);
     }
 }
 
