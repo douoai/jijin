@@ -33,6 +33,7 @@ const USD_TO_RMB_API_URL = 'https://api.exchangerate-api.com/v4/latest/USD'; // 
 const BACKUP_USD_TO_RMB_API_URL = 'https://open.er-api.com/v6/latest/USD'; // 汇率API（备用）
 
 // ==================== 全局状态变量 ====================
+let isLoading = true; // 是否正在加载（用于控制首���加载动画）
 let lastUsdToRmbRate = 6.92; // 上次获取的美元兑人民币汇率
 let lastGoldPriceUsd = null; // 上次的国际金价（美元/盎司）
 let lastPriceChangePercent = null; // 上次的价格变化百分比
@@ -412,6 +413,22 @@ async function getGoldPrice() {
 }
 
 /**
+ * 隐藏加载动画
+ */
+function hideLoading() {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.classList.add('hidden');
+        // 等待过渡完成后从DOM中移除（可选）
+        setTimeout(() => {
+            if (loadingOverlay.parentNode) {
+                loadingOverlay.style.display = 'none';
+            }
+        }, 500);
+    }
+}
+
+/**
  * 更新页面显示
  * 核心函数：获取汇率、金价、计算人民币价格并更新显示
  * 计算公式：国内金价（元/克）= 国际金价（美元/盎司）× 汇率 ÷ 31.1035
@@ -529,6 +546,12 @@ async function updateDisplay() {
         const domesticChange = usdToRmb(goldChange);
         domesticChangeEl.textContent = `${domesticChange >= 0 ? '+' : ''}${formatPrice(domesticChange)}`;
         domesticChangeEl.className = domesticChange >= 0 ? 'info-value positive' : 'info-value negative';
+
+        // 如果是首次加载，隐藏加载动画
+        if (isLoading) {
+            isLoading = false;
+            hideLoading();
+        }
 
     } catch (error) {
         console.error('更新显示失败', error);
