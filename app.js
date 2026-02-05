@@ -76,22 +76,19 @@ function initChart() {
             // 自定义提示框内容 - 第一行价格，第二行完整时间
             formatter: function(params) {
                 const data = params[0];
-                const value = data.value.toFixed(2);
+                const value = data.data.value.toFixed(2);
+                const timestamp = data.data.timestamp;
 
-                // 从priceHistory中获取原始时间戳
-                const historyData = priceHistory[priceHistory.length - CHART_DISPLAY_COUNT + data.dataIndex];
-                let timeStr = '';
-                if (historyData) {
-                    const date = new Date(historyData.timestamp);
-                    timeStr = date.toLocaleString('zh-CN', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                    });
-                }
+                // 格式化完整时间
+                const date = new Date(timestamp);
+                const timeStr = date.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
 
                 return `
                     <div style="padding: 10px 12px; background: rgba(0,0,0,0.95); border-radius: 6px; border: 1px solid #333;">
@@ -180,8 +177,11 @@ function updateChart() {
     // 只获取最近的数据点
     const displayData = priceHistory.slice(-CHART_DISPLAY_COUNT);
 
-    // 准备价格数据数组
-    const priceData = displayData.map(item => item.price);
+    // 准备数据数组，每个元素包含价格和时间戳
+    const seriesData = displayData.map(item => ({
+        value: item.price,
+        timestamp: item.timestamp
+    }));
 
     // 准���时间标签数组 - 根据数据密度调整显示格式
     const categoryData = displayData.map((item, index) => {
@@ -207,7 +207,7 @@ function updateChart() {
             data: categoryData // 更新X轴数据
         },
         series: [{
-            data: priceData // 更新Y轴数据
+            data: seriesData // 更新Y轴数据（包含时间戳）
         }]
     });
 }
