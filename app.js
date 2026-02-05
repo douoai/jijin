@@ -22,8 +22,9 @@ const chartContainer = document.getElementById('kline-chart'); // 图表容器
 
 // ==================== 配置参数 ====================
 const REFRESH_INTERVAL = 5000; // 价格刷新间隔：5秒
-const MAX_DATA_COUNT = 50; // 图表最多显示的数据点数量（改为50个，约4分钟数据）
-const CHART_DISPLAY_COUNT = 60; // 图表实际显示的数据点数量
+const MAX_HISTORY_HOURS = 2; // 保留最近2小时的历史数据
+const MAX_DATA_COUNT = Math.floor((MAX_HISTORY_HOURS * 3600 * 1000) / REFRESH_INTERVAL); // 计算数据点数量
+const CHART_DISPLAY_COUNT = MAX_DATA_COUNT; // 显示所有保存的数据点
 
 // ==================== API接口地址 ====================
 const GOLD_API_URL = 'https://data-asg.goldprice.org/dbXRates/USD'; // 国际金价API
@@ -154,7 +155,7 @@ function initChart() {
 /**
  * 更新图表数据
  * 从priceHistory中提取数据并更新图表
- * 只显示最近CHART_DISPLAY_COUNT个数据点，保持图表清晰
+ * 显示最近2小时的数据点
  */
 function updateChart() {
     if (!myChart) return;
@@ -165,14 +166,22 @@ function updateChart() {
     // 准备价格数据数组
     const priceData = displayData.map(item => item.price);
 
-    // 准备时间标签数组（格式化为 HH:mm:ss）
-    const categoryData = displayData.map(item => {
+    // 准���时间标签数组 - 根据数据密度调整显示格式
+    const categoryData = displayData.map((item, index) => {
         const date = new Date(item.timestamp);
-        return date.toLocaleString('zh-CN', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        });
+
+        // 每隔一定数量的数据点显示一次时间（避免标签重叠）
+        // 1440个数据点，每120个点显示一次标签（约10分钟）
+        const showLabelInterval = Math.max(1, Math.floor(displayData.length / 12));
+
+        if (index % showLabelInterval === 0 || index === displayData.length - 1) {
+            return date.toLocaleString('zh-CN', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } else {
+            return ''; // 中间的点不显示标签
+        }
     });
 
     // 更新图表配置
