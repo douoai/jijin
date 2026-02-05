@@ -45,6 +45,10 @@ let currentTimePeriod = 'realtime'; // 当前选择的时间段
 let todayOpenPrice = null; // 今日开盘价（美元，当天的第一个价格）
 let lastDate = null; // 上次更新的日期
 
+// ==================== 缓存相关常量 ====================
+const CACHE_KEY = 'goldPriceHistory'; // localStorage键名
+const CACHE_DURATION = 2 * 60 * 60 * 1000; // 缓存有效期：2小时（毫秒）
+
 // ==================== 金属配置 ====================
 // 不同金属的基础价格配置（用于模拟其他金属价格）
 const metalConfig = {
@@ -53,6 +57,53 @@ const metalConfig = {
     platinum: { name: '铂金', basePrice: 1250.80 },
     silver: { name: '白银', basePrice: 4.25 }
 };
+
+/**
+ * 从浏览器缓存加载价格历史数据
+ * @returns {Array|null} 缓存的数据，如果无效或过期则返回null
+ */
+function loadFromCache() {
+    try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (!cached) return null;
+
+        const data = JSON.parse(cached);
+        const now = Date.now();
+
+        // 检查缓存是否过期（2小时）
+        if (now - data.timestamp > CACHE_DURATION) {
+            console.log('缓存已过期');
+            localStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+
+        // 过滤掉过期的历史数据点（只保留2小时内的）
+        const validHistory = data.history.filter(item => {
+            return now - item.timestamp <= MAX_HISTORY_HOURS * 3600 * 1000;
+        });
+
+        console.log(`从缓存加载了 ${validHistory.length} 条数据`);
+        return validHistory;
+    } catch (error) {
+        console.error('读取缓存失败', error);
+        return null;
+    }
+}
+
+/**
+ * 保存价格历史数据到浏览器缓存
+ */
+function saveToCache() {
+    try {
+        const data = {
+            timestamp: Date.now(),
+            history: priceHistory
+        };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    } catch (error) {
+        console.error('保存缓存失败', error);
+    }
+}
 
 /**
  * 初始化ECharts折线图
@@ -247,6 +298,9 @@ function addPriceData(price, timestamp) {
     if (priceHistory.length > MAX_DATA_COUNT) {
         priceHistory.shift();
     }
+
+    // 保存到浏览器缓存
+    saveToCache();
 
     // 更新图表显示
     updateChart();
@@ -588,6 +642,15 @@ function init() {
 
     // 初始化标签切换事件
     initTabEvents();
+
+    // 从缓存加载历史数据
+    const cachedHistory = loadFromCache();
+    if (cachedHistory && cachedHistory.length > 0) {
+        priceHistory = cachedHistory;
+        // 立即更新图表显示缓存的数据
+        updateChart();
+        console.log('已加载缓存数据，图表将显示历史数据');
+    }
 
     // 初始化黄金数据
     switchMetal('gold');
