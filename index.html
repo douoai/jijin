@@ -63,37 +63,16 @@
         /* 金属显示区域 */
         .metal-display {
             text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .metal-name {
-            font-size: 16px;
-            color: #999;
-            margin-bottom: 10px;
-            font-weight: 500;
-        }
-
-        /* API数据区域 */
-        .api-data-section {
-            margin-top: 30px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            color: #ffd700;
-            text-align: center;
-            margin-bottom: 20px;
-            font-weight: 600;
+            margin-bottom: 30px;
         }
 
         /* 详细信息显示 */
         .info-display {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            max-width: 1000px;
-            margin-left: auto;
-            margin-right: auto;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            max-width: 900px;
+            margin: 0 auto;
         }
 
         .info-item {
@@ -101,22 +80,22 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 5px;
-            padding: 12px 10px;
+            gap: 8px;
+            padding: 15px 12px;
             background-color: #1a1a1a;
             border-radius: 8px;
             border: 1px solid #2a2a2a;
         }
 
         .info-label {
-            font-size: 12px;
+            font-size: 13px;
             color: #999;
             font-weight: 500;
             text-align: center;
         }
 
         .info-value {
-            font-size: 15px;
+            font-size: 16px;
             color: #ffd700;
             font-weight: 600;
             text-align: center;
@@ -128,22 +107,6 @@
 
         .info-value.negative {
             color: #f44336; /* 红色表示下跌 */
-        }
-
-        /* 计算公式区域 */
-        .formula-section {
-            margin-top: 25px;
-            text-align: center;
-        }
-
-        .formula-text {
-            font-size: 13px;
-            color: #888;
-            background-color: #1a1a1a;
-            padding: 10px 20px;
-            border-radius: 6px;
-            display: inline-block;
-            border: 1px solid #2a2a2a;
         }
 
         /* 时间筛选标签 - PC端显示 */
@@ -242,19 +205,19 @@
 
             .info-display {
                 grid-template-columns: repeat(2, 1fr); /* 移动端2列显示 */
-                gap: 8px;
+                gap: 10px;
             }
 
             .info-item {
-                padding: 8px 6px;
+                padding: 12px 8px;
             }
 
             .info-label {
-                font-size: 11px;
+                font-size: 12px;
             }
 
             .info-value {
-                font-size: 12px;
+                font-size: 14px;
             }
 
             #kline-chart {
@@ -285,76 +248,33 @@
     <div class="container">
         <!-- 价格区域 -->
         <div class="price-section">
-            <h2 class="price-title">贵金属价格实时监控</h2>
+            <h2 class="price-title">黄金价格实时监控</h2>
 
             <!-- 黄金价格 -->
             <div class="metal-display">
-                <div class="metal-name">黄金 (XAU)</div>
                 <div class="price-display-wrapper">
                     <span class="price-value" id="price-display">--</span>
                     <span class="price-unit">¥/克</span>
                 </div>
             </div>
 
-            <!-- API原始数据显示 -->
-            <div class="api-data-section">
-                <h3 class="section-title">API原始数据</h3>
-                <div class="info-display">
-                    <div class="info-item">
-                        <span class="info-label">国际金价:</span>
-                        <span class="info-value" id="xau-price">-- USD/盎司</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">价格变化:</span>
-                        <span class="info-value" id="xau-change">--</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">涨跌幅:</span>
-                        <span class="info-value" id="xau-percent">--%</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">前收盘:</span>
-                        <span class="info-value" id="xau-close">-- USD</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">白银价格:</span>
-                        <span class="info-value" id="xag-price">-- USD/盎司</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">白银变化:</span>
-                        <span class="info-value" id="xag-change">--</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">白银涨跌:</span>
-                        <span class="info-value" id="xag-percent">--%</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">白银前收:</span>
-                        <span class="info-value" id="xag-close">-- USD</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">汇率:</span>
-                        <span class="info-value" id="rate-value">1 USD = -- CNY</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">API时间:</span>
-                        <span class="info-value" id="api-date">--</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">时间戳:</span>
-                        <span class="info-value" id="api-ts">--</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">本地时间:</span>
-                        <span class="info-value" id="local-time">--</span>
-                    </div>
+            <!-- 关键数据展示 -->
+            <div class="info-display">
+                <div class="info-item">
+                    <span class="info-label">国际金价</span>
+                    <span class="info-value" id="xau-price">-- USD/盎司</span>
                 </div>
-            </div>
-
-            <!-- 计算说明 -->
-            <div class="formula-section">
-                <div class="formula-text">
-                    计算公式: 国内金价(元/克) = 国际金价(美元/盎司) × 汇率 ÷ 31.1035
+                <div class="info-item">
+                    <span class="info-label">涨跌幅</span>
+                    <span class="info-value" id="xau-percent">--%</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">汇率</span>
+                    <span class="info-value" id="rate-value">1 USD = -- CNY</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">更新时间</span>
+                    <span class="info-value" id="local-time">--</span>
                 </div>
             </div>
         </div>
