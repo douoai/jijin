@@ -265,25 +265,29 @@ function switchMetal(metalType) {
     // 更新页面标题
     priceTitle.textContent = `${config.name}价格`;
 
-    // 获取基础价格
-    const basePrice = config.basePrice;
-    priceDisplay.textContent = formatPrice(basePrice);
+    // 只在非黄金类型时生成模拟数据
+    if (metalType !== 'gold') {
+        // 获取基础价格
+        const basePrice = config.basePrice;
+        priceDisplay.textContent = formatPrice(basePrice);
 
-    // 清空历史数据并重新生成模拟数据
-    priceHistory = [];
-    const now = Date.now();
-    // 生成100个历史数据点，每分钟一个
-    for (let i = 100; i >= 0; i--) {
-        const timestamp = now - i * 60000; // 每分钟一个数据点
-        const variation = (Math.random() - 0.5) * basePrice * 0.02; // ±1% 的随机波动
-        priceHistory.push({
-            price: basePrice + variation,
-            timestamp: timestamp
-        });
+        // 清空历史数据并重新生成模拟数据
+        priceHistory = [];
+        const now = Date.now();
+        // 生成100个历史数据点，每分钟一个
+        for (let i = 100; i >= 0; i--) {
+            const timestamp = now - i * 60000; // 每分钟一个数据点
+            const variation = (Math.random() - 0.5) * basePrice * 0.02; // ±1% 的随机波动
+            priceHistory.push({
+                price: basePrice + variation,
+                timestamp: timestamp
+            });
+        }
+
+        // 更新图表显示
+        updateChart();
     }
-
-    // 更新图表显示
-    updateChart();
+    // 黄金类型不生成模拟数据，使用真实API数据
 }
 
 /**
