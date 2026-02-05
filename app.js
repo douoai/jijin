@@ -556,63 +556,6 @@ function initTabEvents() {
 }
 
 /**
- * 全屏功能切换
- * 仅对图表容器进行全屏显示，而不是整个页面
- */
-function toggleFullscreen() {
-    const chartElement = document.getElementById('kline-chart');
-    if (!document.fullscreenElement) {
-        // 进入全屏模式
-        chartElement.requestFullscreen().catch(err => {
-            console.error('进入全屏失败:', err);
-        });
-    } else {
-        // 退出全屏模式
-        document.exitFullscreen();
-    }
-}
-
-/**
- * 更新全屏按钮图标
- * 根据当前全屏状态切换图标样式
- */
-function updateFullscreenIcon() {
-    const icon = document.getElementById('fullscreen-icon');
-    const btn = document.getElementById('fullscreen-btn');
-
-    if (document.fullscreenElement) {
-        // 显示退出全屏图标
-        icon.innerHTML = '<path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>';
-        btn.setAttribute('title', '退出全屏');
-    } else {
-        // 显示进入全屏图标
-        icon.innerHTML = '<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>';
-        btn.setAttribute('title', '全屏');
-    }
-}
-
-/**
- * 初始化全屏功能
- * 绑定全屏按钮点击事件和全屏状态变化监听
- */
-function initFullscreen() {
-    const fullscreenBtn = document.getElementById('fullscreen-btn');
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
-
-    // 监听全屏状态变化事件
-    document.addEventListener('fullscreenchange', function() {
-        // 更新按钮图标
-        updateFullscreenIcon();
-        // 延迟调用resize，确保全屏过渡完成后再调整图表尺寸
-        setTimeout(() => {
-            if (myChart) {
-                myChart.resize();
-            }
-        }, 100);
-    });
-}
-
-/**
  * 初始化应用
  * 启动时执行，初始化所有功能模块
  */
@@ -622,9 +565,6 @@ function init() {
 
     // 初始化标签切换事件
     initTabEvents();
-
-    // 初始化全屏功能
-    initFullscreen();
 
     // 初始化黄金数据
     switchMetal('gold');
