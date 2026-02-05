@@ -7,12 +7,17 @@
 const priceDisplay = document.getElementById('price-display'); // 价格显示元素
 const priceTitle = document.querySelector('.price-title'); // 标题元素
 const rateDisplay = document.getElementById('rate-display'); // 汇率显示元素
-const conversionDetail = document.getElementById('conversion-detail'); // 换算详情显示
 const xauPriceEl = document.getElementById('xau-price'); // 国际金价显示
 const xauCloseEl = document.getElementById('xau-close'); // 前收盘价显示
 const xauOpenEl = document.getElementById('xau-open'); // 今日开盘价显示
 const xauPercentEl = document.getElementById('xau-percent'); // 黄金涨跌幅
 const xauChangeEl = document.getElementById('xau-change'); // 价格变化显示
+// 国内价格元素
+const domesticPriceEl = document.getElementById('domestic-price'); // 国内金价
+const domesticCloseEl = document.getElementById('domestic-close'); // 国内前收盘价
+const domesticOpenEl = document.getElementById('domestic-open'); // 国内今日开盘
+const domesticPercentEl = document.getElementById('domestic-percent'); // 国内涨跌幅
+const domesticChangeEl = document.getElementById('domestic-change'); // 国内价格变化
 const localTimeEl = document.getElementById('local-time'); // 本地时间
 const chartContainer = document.getElementById('kline-chart'); // 图表容器
 
@@ -36,7 +41,7 @@ let priceHistory = []; // 价格历史数据数组 [{price, timestamp}, ...]
 let myChart = null; // ECharts图表实例
 let currentMetal = 'gold'; // 当前选择的金属类型
 let currentTimePeriod = 'realtime'; // 当前选择的时间段
-let todayOpenPrice = null; // 今日开盘价（当天的第一个价格）
+let todayOpenPrice = null; // 今日开盘价（美元，当天的第一个价格）
 let lastDate = null; // 上次更新的日期
 
 // ==================== 金属配置 ====================
@@ -488,8 +493,32 @@ async function updateDisplay() {
         });
         localTimeEl.textContent = `更新时间: ${timeStr}`;
 
-        // 18. 更新换算详情显示
-        conversionDetail.innerHTML = `${goldPriceUsd.toFixed(2)} USD/盎司 × ${usdToRmbRate.toFixed(2)} ÷ 31.1035 = <span class="result-price">¥${formatPrice(goldPriceRmbPerGram)}/克</span>`;
+        // 18. 计算并更新第二行国内价格
+        // 换算函数：美元/盎司 -> 人民币/克
+        const usdToRmb = (usdPrice) => (usdPrice * usdToRmbRate) / 31.1035;
+
+        // 国内金价
+        domesticPriceEl.textContent = `${formatPrice(goldPriceRmbPerGram)} ¥/克`;
+
+        // 国内前收盘价
+        const domesticClosePrice = usdToRmb(goldClose);
+        domesticCloseEl.textContent = `${formatPrice(domesticClosePrice)} ¥/克`;
+
+        // 国内今日开盘
+        let domesticOpenPrice = 0;
+        if (todayOpenPrice) {
+            domesticOpenPrice = usdToRmb(todayOpenPrice);
+            domesticOpenEl.textContent = `${formatPrice(domesticOpenPrice)} ¥/克`;
+        }
+
+        // 国内涨跌幅（与国际金价相同）
+        domesticPercentEl.textContent = `${goldPercent >= 0 ? '+' : ''}${goldPercent.toFixed(2)}%`;
+        domesticPercentEl.className = goldPercent >= 0 ? 'info-value positive' : 'info-value negative';
+
+        // 国内价格变化（美元转人民币）
+        const domesticChange = usdToRmb(goldChange);
+        domesticChangeEl.textContent = `${domesticChange >= 0 ? '+' : ''}${formatPrice(domesticChange)}`;
+        domesticChangeEl.className = domesticChange >= 0 ? 'info-value positive' : 'info-value negative';
 
     } catch (error) {
         console.error('更新显示失败', error);
