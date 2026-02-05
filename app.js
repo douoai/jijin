@@ -45,9 +45,8 @@ let currentTimePeriod = 'realtime'; // 当前选择的时间段
 let todayOpenPrice = null; // 今日开盘价（美元，当天的第一个价格）
 let lastDate = null; // 上次更新的日期
 
-// ==================== 缓存相关常量 ====================
-const CACHE_KEY = 'goldPriceHistory'; // localStorage键名
-const CACHE_DURATION = 2 * 60 * 60 * 1000; // 缓存有效期：2小时（毫秒）
+// ==================== API 配置 ====================
+let API_BASE_URL = window.API_BASE_URL || 'http://localhost:8787';
 
 // ==================== 金属配置 ====================
 // 不同金属的基础价格配置（用于模拟其他金属价格）
@@ -59,49 +58,52 @@ const metalConfig = {
 };
 
 /**
- * 从浏览器缓存加载价格历史数据
- * @returns {Array|null} 缓存的数据，如果无效或过期则返回null
+ * 从 D1 数据库加载价格历史数据
+ * @returns {Promise<Array>} 历史数据数组
  */
-function loadFromCache() {
+async function loadFromDatabase() {
     try {
-        const cached = localStorage.getItem(CACHE_KEY);
-        if (!cached) return null;
+        const response = await fetch(`${API_BASE_URL}/api/prices?hours=${MAX_HISTORY_HOURS}&limit=${MAX_DATA_COUNT}`);
 
-        const data = JSON.parse(cached);
-        const now = Date.now();
-
-        // 检查缓存是否过期（2小时）
-        if (now - data.timestamp > CACHE_DURATION) {
-            console.log('缓存已过期');
-            localStorage.removeItem(CACHE_KEY);
+        if (!response.ok) {
+            console.error('API 返回错误:', response.status);
             return null;
         }
 
-        // 过滤掉过期的历史数据点（只保留2小时内的）
-        const validHistory = data.history.filter(item => {
-            return now - item.timestamp <= MAX_HISTORY_HOURS * 3600 * 1000;
-        });
+        const result = await response.json();
 
-        console.log(`从缓存加载了 ${validHistory.length} 条数据`);
-        return validHistory;
+        if (result.success && result.data) {
+            // 转换数据格式以兼容现有的图表代码
+            const history = result.data.map(item => ({
+                price: item.priceCny,
+                timestamp: item.timestamp
+            }));
+
+            console.log(`从数据库加载了 ${history.length} 条数据`);
+            return history;
+        }
+
+        return null;
     } catch (error) {
-        console.error('读取缓存失败', error);
+        console.error('从数据库加载数据失败', error);
         return null;
     }
 }
 
 /**
- * 保存价格历史数据到浏览器缓存
+ * 保存价格数据到 D1 数据库
  */
-function saveToCache() {
+async function saveToDatabase(priceData) {
     try {
-        const data = {
-            timestamp: Date.now(),
-            history: priceHistory
-        };
-        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        await fetch(`${API_BASE_URL}/api/price`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(priceData)
+        });
     } catch (error) {
-        console.error('保存缓存失败', error);
+        console.error('保存到数据库失败', error);
     }
 }
 
@@ -286,8 +288,9 @@ function updateChart() {
  * 添加价格数据到历史记录
  * @param {number} price - 价格数值
  * @param {number} timestamp - 时间戳
+ * @param {Object} apiData - 完整的API数据（用于保存到数据库）
  */
-function addPriceData(price, timestamp) {
+function addPriceData(price, timestamp, apiData = null) {
     // 添加新数据到历史记录
     priceHistory.push({
         price: price,
@@ -299,8 +302,20 @@ function addPriceData(price, timestamp) {
         priceHistory.shift();
     }
 
-    // 保存到浏览器缓存
-    saveToCache();
+    // 保存到 D1 数据库（异步执行，不阻塞）
+    if (apiData) {
+        const priceData = {
+            priceUsd: apiData.goldPriceUsd,
+            priceCny: price,
+            exchangeRate: apiData.usdToRmbRate,
+            changePercent: apiData.goldPercent,
+            changeAmount: apiData.goldChange,
+            closePrice: apiData.goldClose,
+            openPrice: apiData.todayOpenPrice,
+            timestamp: timestamp
+        };
+        saveToDatabase(priceData);
+    }
 
     // 更新图表显示
     updateChart();
@@ -542,7 +557,16 @@ async function updateDisplay() {
 
         // 9. 只在价格变化时添加新数据到历史记录
         if (lastPrice === null || Math.abs(goldPriceRmbPerGram - lastPrice) > 0.01) {
-            addPriceData(goldPriceRmbPerGram, now.getTime());
+            // 准备完整的API数据用于保存到数据库
+            const apiData = {
+                goldPriceUsd,
+                usdToRmbRate,
+                goldPercent,
+                goldChange,
+                goldClose,
+                todayOpenPrice
+            };
+            addPriceData(goldPriceRmbPerGram, now.getTime(), apiData);
         }
 
         // 10. 更新页面价格显示
@@ -636,20 +660,26 @@ function initTabEvents() {
  * 初始化应用
  * 启动时执行，初始化所有功能模块
  */
-function init() {
+async function init() {
     // 初始化图表
     initChart();
 
     // 初始化标签切换事件
     initTabEvents();
 
-    // 从缓存加载历史数据
-    const cachedHistory = loadFromCache();
-    if (cachedHistory && cachedHistory.length > 0) {
-        priceHistory = cachedHistory;
-        // 立即更新图表显示缓存的数据
-        updateChart();
-        console.log('已加载缓存数据，图表将显示历史数据');
+    // 从 D1 数据库加载历史数据
+    try {
+        const dbHistory = await loadFromDatabase();
+        if (dbHistory && dbHistory.length > 0) {
+            priceHistory = dbHistory;
+            // 立即更新图表显示缓存的数据
+            updateChart();
+            console.log('已从数据库加载历史数据，图表将显示历史数据');
+        } else {
+            console.log('数据库中暂无历史数据，将开始收集新数据');
+        }
+    } catch (error) {
+        console.error('加载历史数据失败，将开始收集新数据', error);
     }
 
     // 初始化黄金数据

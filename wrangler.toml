@@ -1,0 +1,13 @@
+name = "gold-price-monitor"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# D1 数据库绑定
+[[d1_databases]]
+binding = "DB"
+database_name = "gold-price-db"
+database_id = "your-database-id"  # 需要替换为实际的数据库ID
+
+# CORS 设置，允许前端访问
+[vars]
+ALLOWED_ORIGINS = "*"

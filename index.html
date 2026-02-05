@@ -408,6 +408,12 @@
 
     <!-- ECharts CDN -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script>
+        // 配置后端 API 地址
+        // 部署后请替换为您的 Workers URL，例如：https://gold-price-monitor.abc123.workers.dev
+        const API_BASE_URL = 'http://localhost:8787'; // 本地开发
+        // const API_BASE_URL = 'https://gold-price-monitor.你的账号.workers.dev'; // 生产环境
+    </script>
     <script src="app.js"></script>
 </body>
 </html>
